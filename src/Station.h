@@ -47,16 +47,16 @@ enum {
 typedef nx_struct StationMsg {
 	// Header
 	nx_uint16_t id;
-	nx_uint16_t size = 2; 
+	nx_uint16_t size; 
 
 	// Payload
-	nx_uint16_t temperature = 0;
-	nx_uint16_t luminosity = 0;
-	nx_uint32_t data_1;
-	nx_uint32_t data_2;
-	nx_uint32_t data_3;
-	nx_uint32_t data_4;
-	nx_uint32_t data_5;
+	nx_uint16_t temperature;
+	nx_uint16_t luminosity;
+	//nx_uint32_t data_1;
+	//nx_uint32_t data_2;
+	//nx_uint32_t data_3;
+	//nx_uint32_t data_4;
+	//nx_uint32_t data_5;
 	
 } StationMsg;
 /************************************************************/
