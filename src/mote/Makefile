@@ -1,2 +1,2 @@
-COMPONENT=StationAppC
+COMPONENT=MoteAppC
 include $(MAKERULES)

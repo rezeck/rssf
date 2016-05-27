@@ -1,8 +1,8 @@
 /************************************************************ 
-		Definition of our Communication Protocol
+	Setting of our mote communication protocol structure
 ************************************************************/
-#ifndef STATION_H
-#define STATION_H
+#ifndef MOTE_H
+#define MOTE_H
 /************************************************************/
 
 
@@ -44,7 +44,7 @@ enum {
 
 	@data_# - Another sensors.
 ************************************************************/
-typedef nx_struct StationMsg {
+typedef nx_struct MoteMsg {
 	// Header
 	nx_uint16_t id;
 	nx_uint16_t size; 
@@ -58,7 +58,7 @@ typedef nx_struct StationMsg {
 	//nx_uint32_t data_4;
 	//nx_uint32_t data_5;
 	
-} StationMsg;
+} MoteMsg;
 /************************************************************/
 
 /************************************************************/

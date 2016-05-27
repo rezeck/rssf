@@ -1,13 +1,13 @@
 /************************************************************
-				Interface implementation
+Mote code implementation
 ************************************************************/
 
 /************************************************************/	
 #include <Timer.h>
-#include "Station.h"
+#include "Mote.h"
 /************************************************************/
 
-module StationC {
+module MoteC {
 	uses interface Boot;
 	uses interface Leds;
 	uses interface Timer<TMilli> as Timer0;
