@@ -1,0 +1,83 @@
+<html>
+<head>
+	<title>Estação base de RSSF</title>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<style type="text/css">
+	#gui {
+		width: 700px;
+		height: 500px;
+		text-align: center;
+	}
+
+	
+	</style>
+</head>
+<body>
+	<script>
+	$(function(){
+		$("#boxAllSensors").change(function(){
+			if (this.checked){
+				$("#idSensor").prop('disabled', true);
+			} else {
+				$("#idSensor").prop('disabled', false);
+			}
+		});
+
+		$("#btnColetar").click(function(){
+			$(".table-responsive").show();
+		});
+	});
+	</script>
+	<div id="gui">
+		<p><b>Trabalho Prático 2 - Redes de Sensores Sem Fio</b></p>
+		<form>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Coleta de dados</h3>
+				</div>
+				<div class="panel-body">
+					<label><input id="boxAllSensors" name="allSensors" type="checkbox">Todos os sensores</label><br>
+					<label>Sensor de endereço: <input id="idSensor" name="idSensor" type="text" size="5"></label><br>
+					<input id="btnColetar" type="button" class="btn btn-sm btn-primary" value="Coletar dados" onclick="alert('Disparar coleta!')">				
+				</div>				
+			</div>
+		</form>
+		
+		<div class="table-responsive" style="display: none;">
+		<p>Dados recebidos:</p>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<td>Endereço do sensor</td>
+					<td>Temperatura</td>
+					<td>Luminusidade</td>
+					<td>Outros dados</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>110</td>
+					<td>29</td>
+					<td>XX</td>
+					<td>19.892089, 43.998958</td>
+				</tr>
+				<tr>
+					<td>110</td>
+					<td>29</td>
+					<td>XX</td>
+					<td>19.892089, 43.998958</td>
+				</tr>
+												<tr>
+					<td>110</td>
+					<td>29</td>
+					<td>XX</td>
+					<td>19.892089, 43.998958</td>
+				</tr>
+			</tbody>
+		</table>
+		</div>
+	</div>
+</body>
+</html>
