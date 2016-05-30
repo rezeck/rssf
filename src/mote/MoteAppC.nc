@@ -28,7 +28,8 @@ implementation {
 	App.Leds -> LedsC;
 	App.Timer0 -> Timer0;
 	App.AMControl -> ActiveMessageC;
-	App.Packet -> sendQuestion;
+	App.QPacket -> sendQuestion;
+	App.APacket -> sendAnswer;
 	App.AMPacket -> sendQuestion;
 	// Active Message to send and receive questions
 	App.AMSendQuestion -> sendQuestion;

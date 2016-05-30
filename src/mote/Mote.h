@@ -39,12 +39,13 @@ enum {
 ************************************************************/
 typedef nx_struct MoteMsg {
 	// Header
-	nx_uint16_t id;
+	nx_uint16_t version;
 	nx_uint16_t size; 
 
 	// Payload
 	nx_uint16_t temperature;
 	nx_uint16_t luminosity;
+	nx_uint16_t src;
 	//nx_uint32_t data_1;
 	//nx_uint32_t data_2;
 	//nx_uint32_t data_3;
