@@ -24,7 +24,7 @@ implementation {
 /*********************************************************
 Variables
 *********************************************************/
-bool question_sent = FALSE;
+//bool question_sent = FALSE;
 //bool answer_sent = FALSE;
 
 am_addr_t parent_addr;
@@ -42,7 +42,6 @@ nx_uint16_t luminosity;
 Boot started event
 *********************************************************/
 event void Boot.booted() {
-	dbg("Mote", "Application booted.\n");
 	call AMControl.start();
 }
 /*********************************************************/
@@ -56,7 +55,6 @@ event void AMControl.startDone(error_t err) {
 		temperature = TOS_NODE_ID*10;
 		luminosity = TOS_NODE_ID*10;
 		call Timer0.startPeriodic(TIMER_PERIOD_MILLI);
-		dbg("Mote", "AMControl started.\n");
 	}
 	else {
 		call AMControl.start();
@@ -68,7 +66,6 @@ event void AMControl.startDone(error_t err) {
 Radio stoped event 
 *********************************************************/
 event void AMControl.stopDone(error_t err) {
-	dbg("Mote", "AMControl stopped.\n");
 }
 /*********************************************************/
 
@@ -77,21 +74,7 @@ Timer0 event fired
 *********************************************************/
 event void Timer0.fired() { /*TODO*/
 	// update values from sensor
-	//dbg("Mote", "Time.\n");
-	//simulation to sink
-	if (TOS_NODE_ID == 1 && !question_sent){
-	 	mtpkt = (MoteMsg*)(call QPacket.getPayload(&req, sizeof(MoteMsg)));
-	 	if (mtpkt == NULL)
-	 		return;
-	 	version += 1;
-	 	mtpkt->version = version;
-
-		if (call AMSendQuestion.send(AM_BROADCAST_ADDR, &req, sizeof(MoteMsg)) == SUCCESS){
-			question_sent = TRUE;
-			dbg("Mote", "Sink send question.\n");
-		}
-
-	}
+	
 }
 /*********************************************************/
 
@@ -99,10 +82,6 @@ event void Timer0.fired() { /*TODO*/
 Sent a question event
 *********************************************************/
 event void AMSendQuestion.sendDone(message_t* msg, error_t err) {
-	if (msg == &pkt){
-		//question_sent = FALSE;
-		//dbg("Mote", "Question was sent.\n");
-	}
 }
 /*********************************************************/
 
@@ -110,9 +89,6 @@ event void AMSendQuestion.sendDone(message_t* msg, error_t err) {
 Sent an answer event
 *********************************************************/
 event void AMSendAnswer.sendDone(message_t* msg, error_t err) {
-	if (msg == &pkt){
-		//dbg("Mote", "Answer was sent.\n");
-	}
 }
 /*********************************************************/
 
@@ -120,7 +96,6 @@ event void AMSendAnswer.sendDone(message_t* msg, error_t err) {
 Received an answer event
 *********************************************************/
 event message_t* AMReceiveAnswer.receive(message_t* msg, void* payload, uint8_t len){
-	dbg("Mote", "Receive answer.\n");
 	if (len == sizeof(MoteMsg)) {
 		// Get header information
 		am_id_t id = call AMPacket.type(msg);
@@ -130,17 +105,12 @@ event message_t* AMReceiveAnswer.receive(message_t* msg, void* payload, uint8_t 
     	// Get payload
 		MoteMsg* motepkt = (MoteMsg*)payload;
 		mtpkt = (MoteMsg*)(call APacket.getPayload(&pkt, sizeof(MoteMsg)));
-		dbg("Mote", "answer is ok.\n");
+		
 		// Re-send answer to my father
-		if (TOS_NODE_ID != 1){
-			mtpkt->temperature = motepkt->temperature;
-			mtpkt->luminosity = motepkt->luminosity;
-			mtpkt->src = motepkt->src;
-			call AMSendAnswer.send(parent_addr, &pkt, sizeof(MoteMsg));
-			dbg("Mote", "mote receive answer from %hu - repassing to %hu...\n", src, parent_addr);
-		}else{
-			dbg("Mote", "sink receive answer from %hu(%hu, %hu)\n", motepkt->src, motepkt->temperature, motepkt->luminosity);
-		}
+		mtpkt->temperature = motepkt->temperature;
+		mtpkt->luminosity = motepkt->luminosity;
+		mtpkt->src = motepkt->src;
+		call AMSendAnswer.send(parent_addr, &pkt, sizeof(MoteMsg));
 	}
 	return msg;
 }
@@ -150,7 +120,6 @@ event message_t* AMReceiveAnswer.receive(message_t* msg, void* payload, uint8_t 
 Received a question event
 *********************************************************/
 event message_t* AMReceiveQuestion.receive(message_t* msg, void* payload, uint8_t len){
-	dbg("Mote", "Receive a question.\n");
 	if (len == sizeof(MoteMsg)) {
 		// Get header information
 		am_id_t id = call AMPacket.type(msg);
@@ -160,27 +129,20 @@ event message_t* AMReceiveQuestion.receive(message_t* msg, void* payload, uint8_
 		// Get payload
 		MoteMsg* motepkt = (MoteMsg*)payload;
 		
-		dbg("Mote", "Question is ok.\n");
 		// Check if mote has already receive this question
-		
 		if (motepkt->version == version){
-			dbg("Mote", "Question version %hu from %hu is not ok.\n", version, motepkt->version);
-			dbg("Mote", "Discart question.\n");
 			return msg;
 		}
+		// update question version
 		version += 1;
-		dbg("Mote", "Question version %hu is ok.\n", version);
-		
 		
 		mtpkt = (MoteMsg*)(call APacket.getPayload(&pkt, sizeof(MoteMsg)));
-		
 		mtpkt->version = version;
 		
-
     	// Getting father address
 		parent_addr = src;
 
-		// Is Sink asking me
+		// Is Sink asking me (I do not know if we need it)
 		//if(dst == TOS_NODE_ID){
 			// send answer
 			// update motepkt
@@ -198,17 +160,14 @@ event message_t* AMReceiveQuestion.receive(message_t* msg, void* payload, uint8_
 			mtpkt->temperature = temperature;
 			mtpkt->src = TOS_NODE_ID;
 
-			//dbg("Mote", "Enter Receive msg send answer.1\n");
 			call AMSendAnswer.send(parent_addr, &pkt, sizeof(MoteMsg));
-			dbg("Mote", "Answering question (%hu, %hu)\n", luminosity, temperature);
-			//dbg("Mote", "Enter Receive msg send answer.2\n");
 		}
-		mtpkt = (MoteMsg*)(call QPacket.getPayload(&req, sizeof(MoteMsg)));
-		mtpkt->version = version;
+
 		// Sink is not asking me
 		// re-send question
+		mtpkt = (MoteMsg*)(call QPacket.getPayload(&req, sizeof(MoteMsg)));
+		mtpkt->version = version;
 		call AMSendQuestion.send(dst, &req, sizeof(MoteMsg));
-		dbg("Mote", "reply question\n");
 	}
 	return msg;
 }
