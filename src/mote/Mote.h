@@ -14,13 +14,6 @@ enum {
 	AM_QUESTION = 0x0F,
 	AM_ANSWER 	= 0xF0,
 
-	// Nodes Address (24.576, 32.767)
-	ADDRESS_SINK 		= 0x5E88,
-	ADDRESS_NODE_1 		= 0x607C,
-	ADDRESS_NODE_2 		= 0x60E0,
-	ADDRESS_NODE_3 		= 0x6144,
-	ADDRESS_BROADCAST 	= 0xFFFF,
-
 	// Sender Interval
 	TIMER_PERIOD_MILLI = 250 
 };
