@@ -1,6 +1,7 @@
 #ifndef MOTE_H
 #define MOTE_H
-
+#define TOSSIM_BASESTATION_SIMULATION
+#define RSSF_DEBUG
 enum {
 	// Message type
 	AM_QUESTION = 0xF0,
