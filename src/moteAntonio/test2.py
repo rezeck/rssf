@@ -9,7 +9,6 @@ r = t.radio()
 
 t.addChannel("Boot", sys.stdout)
 t.addChannel("Radio", sys.stdout)
-t.addChannel("Serial", sys.stdout)
 
 for i in range(3):
   m = t.getNode(i)
@@ -41,7 +40,7 @@ msg.set_version(2)
 msg.set_size(2)
 pkt = t.newPacket()
 pkt.setData(msg.data)
-pkt.setType(15)
+pkt.setType(240)
 pkt.setSource(0)
 pkt.setDestination(24577)
 
