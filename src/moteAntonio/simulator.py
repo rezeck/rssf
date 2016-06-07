@@ -4,7 +4,7 @@ from TOSSIM import *
 from MoteMsg import *
 
 numberOfNodes = 3
-tcpPort = 9001
+tcpPort = 9002
 
 t = Tossim([])
 m = t.mac()

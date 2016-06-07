@@ -4,13 +4,15 @@ module MoteC{
 	uses {
 		interface Boot;
 		interface SplitControl as RadioControl;
+		interface Leds;
+#ifdef TOSSIM_BASESTATION_SIMULATION
 		interface BaseStation;
-		
+#endif
+
 		interface AMSend as RadioSend[am_id_t id];
 	    interface Receive as RadioReceive[am_id_t id];
 	    interface Packet as RadioPacket;
-	    interface AMPacket as RadioAMPacket;		
-		interface ActiveMessageAddress as RadioAMAddress;
+	    interface AMPacket as RadioAMPacket;
 	}
 }
 implementation{
@@ -34,19 +36,8 @@ implementation{
 #endif
 #ifdef RSSF_DEBUG
 		dbg("Boot", "Mote booted. ID is: %d.\n", TOS_NODE_ID);
-#endif		
-		// define mote address
-		call RadioAMAddress.setAddress(MOTE_GROUP, MOTE_ADDRESS+TOS_NODE_ID);
-	}
-
-	async event void RadioAMAddress.changed(){
-#ifdef TOSSIM_BASESTATION_SIMULATION		
-		if (TOS_NODE_ID == 0) return;
 #endif
-#ifdef RSSF_DEBUG
-		dbg("Boot", "The address is now: %d.\n", (call RadioAMAddress.amAddress()));
-#endif
-		// start radio after define address
+		call Leds.led0On();
 		call RadioControl.start();
 	}
 	
@@ -99,7 +90,7 @@ implementation{
 #endif
 					radioSendAnswer = *msg;
 					motemsg = (MoteMsg*)(call RadioPacket.getPayload(&radioSendAnswer, sizeof(MoteMsg)));
-					motemsg->src = call RadioAMAddress.amAddress();
+					motemsg->src = TOS_NODE_ID;
 					motemsg->parent_node = parent_addr;
 					motemsg->size = 2;
 					motemsg->temperature = 20;
@@ -173,6 +164,7 @@ implementation{
 			id, call RadioAMPacket.source(msg), call RadioAMPacket.destination(msg), motemsg->version, motemsg->size);
 #endif
 		sending = FALSE;
+		call Leds.led2Toggle();
 		if (hasAnswerToSend){
 			post radioSendAnswerTask();
 			hasAnswerToSend = FALSE;
@@ -181,6 +173,7 @@ implementation{
 
 	event void RadioControl.startDone(error_t error){
 		// Radio started. Nothing to do.
+		call Leds.led1On();
 	}
 
 	event void RadioControl.stopDone(error_t error){

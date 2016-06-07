@@ -1,4 +1,5 @@
 #include "Mote.h"
+#ifdef TOSSIM_BASESTATION_SIMULATION
 
 module BaseStationC{
 	provides interface BaseStation;
@@ -11,7 +12,6 @@ module BaseStationC{
 	    interface Receive as RadioReceive[am_id_t id];
 	    interface Packet as RadioPacket;
 	    interface AMPacket as RadioAMPacket;		
-		interface ActiveMessageAddress as RadioAMAddress;
 		
 		interface AMSend as UartSend[am_id_t id];
 		interface Receive as UartReceive[am_id_t id];
@@ -38,7 +38,7 @@ implementation{
 #endif
 		lastQuestionVersion = 0;
 		// define address (radio will be start after this)
-		call RadioAMAddress.setAddress(MOTE_GROUP, MOTE_ADDRESS+TOS_NODE_ID);
+		call RadioControl.start();
 		// start serial
 		call SerialControl.start();
 	}
@@ -49,17 +49,6 @@ implementation{
 //		lastQuestionVersion = 0;
 //		call RadioAMAddress.setAddress(MOTE_GROUP, MOTE_ADDRESS+TOS_NODE_ID);
 //	}
-
-	async event void RadioAMAddress.changed(){
-#ifdef TOSSIM_BASESTATION_SIMULATION
-		if (TOS_NODE_ID > 0){return;}
-#endif
-#ifdef RSSF_DEBUG		
-		dbg("Boot", "The address is now: %d.\n", (call RadioAMAddress.amAddress()));
-#endif
-		// start radio after define address
-		call RadioControl.start();
-	}
 	
 	/**
 	 * @param msg pointer to received packeet
@@ -216,3 +205,4 @@ implementation{
 		// Serial started. Nothing to do.
 	}
 }
+#endif

@@ -7,6 +7,7 @@ implementation{
 	components MoteC as Mote;
 	components ActiveMessageC as MoteAM;
 	components ActiveMessageAddressC as MoteAMAddress;
+	components LedsC;
 
 #ifdef TOSSIM_BASESTATION_SIMULATION	
 	components BaseStationC as BaseStation;
@@ -26,8 +27,7 @@ implementation{
 	Mote.RadioReceive -> MoteAM.Receive;
 	Mote.RadioPacket -> MoteAM;
 	Mote.RadioAMPacket -> MoteAM;
-	Mote.RadioAMAddress -> MoteAMAddress;
-
+	Mote.Leds -> LedsC;
 
 	// BaseStation wiring
 #ifdef TOSSIM_BASESTATION_SIMULATION	
@@ -36,7 +36,6 @@ implementation{
 	BaseStation.RadioReceive -> BaseStationAM.Receive;
 	BaseStation.RadioPacket -> BaseStationAM;
 	BaseStation.RadioAMPacket -> BaseStationAM;
-	BaseStation.RadioAMAddress -> BaseStationAMAddress;
 	
 	BaseStation.SerialControl -> SerialActiveMessageC;
 	BaseStation.UartSend -> SerialActiveMessageC;
