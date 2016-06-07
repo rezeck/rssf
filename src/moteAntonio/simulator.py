@@ -3,11 +3,14 @@ import sys, time
 from TOSSIM import *
 from MoteMsg import *
 
+numberOfNodes = 3
+tcpPort = 9001
+
 t = Tossim([])
 m = t.mac()
 r = t.radio()
-
-numberOfNodes = 3
+sf = SerialForwarder(tcpPort)
+throttle = Throttle(t, 10)
 
 t.addChannel("Boot", sys.stdout)
 t.addChannel("Radio", sys.stdout)
@@ -17,6 +20,10 @@ print "Booting nodes"
 for i in range(numberOfNodes):
   m = t.getNode(i)
   m.bootAtTime((31 + t.ticksPerSecond() / 10) * i + 1)
+
+print "Starting Serial"
+sf.process()
+throttle.initialize()
 
 print "Defining topology"
 f = open("topo.txt", "r")
@@ -39,16 +46,17 @@ for i in range(numberOfNodes):
 
 # run events forever
 while True:
+  throttle.checkThrottle()
   t.runNextEvent()
+  sf.process()
   time.sleep(0.1)
 
 # deliver a packet
-msg = MoteMsg()
-msg.set_version(2)
-msg.set_size(2)
-pkt = t.newPacket()
-pkt.setData(msg.data)
-pkt.setType(15)
-pkt.setSource(0)
-pkt.setDestination(24577)
-pkt.deliver(0, t.time() + 3)
+#msg = MoteMsg()
+#msg.set_version(2)
+#msg.set_size(2)
+#pkt = t.newPacket()
+#pkt.setData(msg.data)
+#pkt.setType(240)
+#pkt.setDestination(65535)
+#pkt.deliver(0, t.time() + 10)
