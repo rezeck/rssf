@@ -28,7 +28,7 @@ public class WebSocketServer {
 	}
 	
 	@OnMessage
-	public void onMessage(String message, Session session){
+	public void onMessage(String message, Session session) {
 		System.out.println("Mensagem de " + session.getId() + " : " + message);
 		MoteQuestionMsg moteQuestionMsg = MessageDecoder.decodeJson(message);
 		BaseStationConnection.getInstance().sendMessageToMote(moteQuestionMsg);

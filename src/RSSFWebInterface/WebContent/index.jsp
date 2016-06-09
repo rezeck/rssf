@@ -35,7 +35,8 @@
 	<script type="text/javascript">
         $(function(){
         	var webSocket;
-    		var currentMsgVersion = 0;        		
+    		var currentMsgVersion = 0;
+    		var requestTimes = new Array();
     		
        		var topology = window.topology = cytoscape({
                	container: document.getElementById('topology'),
@@ -97,6 +98,7 @@
        		}
        		
        		function showOnTable(msg){
+       			var rtt = requestTimes[msg.version] - Date.now();
        			// if exists a row for this node...
        			if ($("#row"+msg.node_id).length>0){
        				$(".table-responsive").show();
@@ -106,6 +108,7 @@
        				row.children().eq(2).text(msg.temperature);
        				row.children().eq(3).text(msg.luminosity);
        				row.children().eq(4).text(msg.version);
+       				row.children().eq(5).text(rtt);
        				
        			} else {
        				$(".table-responsive").show();
@@ -115,6 +118,7 @@
        						"<td>"+msg.temperature+"</td>" +
        						"<td>"+msg.luminosity+"</td>" +
        						"<td>"+msg.version+"</td>" +
+       						"<td>"+rtt+"</td>" +
        						"</tr>");
        			}
        		}
@@ -128,17 +132,20 @@
    				topology.nodes("[id='"+msg.node_id+"']").style("background-color", temperatureColor);
    				topology.nodes("[id='"+msg.node_id+"']").style("border-color", luminosityColor);
    				topology.nodes("[id='"+msg.node_id+"']").style("border-width", 4);
-   				if (msg.parent_id != undefined){
-   					var selector = "[source='"+msg.parent_id+"'][target='"+msg.node_id+"']";
-   					if (topology.edges(selector).length==0){
-   						topology.add({group:"edges", data:{source:msg.parent_id, target:msg.node_id}});
-   					}
-   				}
+   				topology.remove("[source='"+msg.node_id+"']");
+   				topology.add({group:"edges", data:{source:msg.node_id, target:msg.parent_id}});
+//   				if (msg.parent_id != undefined){
+//   					var selector = "[source='"+msg.parent_id+"'][target='"+msg.node_id+"']";
+//   					if (topology.edges(selector).length==0){
+//   						topology.add({group:"edges", data:{source:msg.parent_id, target:msg.node_id}});
+//   					}
+//   				}
    				topology.layout({name:"dagre"});       			
        		}
        		
        		function sendMessage(destination){
        			openSocket();
+       			requestTimes[currentMsgVersion] = Date.now();
        			webSocket.send("{\"action\":\"collect\", \"version\":"+currentMsgVersion+"}");
        			currentMsgVersion++;
        		}
@@ -223,6 +230,7 @@
 		                    <td>Temp</td>
 		                    <td>Light</td>
 		                    <td>Version</td>
+		                    <td>RTT</td>
 		                </tr>
 	                 </thead>
 	                 <tbody id="tableBody">
