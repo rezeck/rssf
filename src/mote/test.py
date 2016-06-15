@@ -1,39 +1,64 @@
-#!/usr/bin/env python
-
+#!/usr/bin/python
+import sys, time
 from TOSSIM import *
-import sys
+from MoteMsg import *
 
 t = Tossim([])
+m = t.mac()
 r = t.radio()
-t.addChannel("Mote", sys.stdout);
+sf = SerialForwarder(9001)
+throttle = Throttle(t, 10)
 
-r.add(1, 2, -54.0)
-r.add(2, 1, -55.0)
-r.add(2, 3, -64.0)
-r.add(3, 2, -64.0)
+t.addChannel("Boot", sys.stdout)
+t.addChannel("Radio", sys.stdout)
+t.addChannel("Serial", sys.stdout)
 
-noise = open("meyer.txt", "r")
+for i in range(3):
+  m = t.getNode(i)
+  m.bootAtTime((31 + t.ticksPerSecond() / 10) * i + 1)
+
+sf.process()
+throttle.initialize()
+
+for i in range(60):
+  throttle.checkThrottle()
+  t.runNextEvent()
+  sf.process()
+
+f = open("topo.txt", "r")
+for line in f:
+  s = line.split()
+  if s:
+    print s;
+    r.add(int(s[0]), int(s[1]), float(s[2]))
+
+noise = open("meyer-heavy.txt", "r")
 for line in noise:
-	str1 = line.strip()
-	if str1:
-		val = int(str1)
-		t.getNode(1).addNoiseTraceReading(val)
-		t.getNode(2).addNoiseTraceReading(val)
-		t.getNode(3).addNoiseTraceReading(val)
+  s = line.strip()
+  if s:
+    val = int(s)
+    for i in range(3):
+      t.getNode(i).addNoiseTraceReading(val)
 
-for i in range(1, 4):
-  print "Creating noise model for ", i
+for i in range(3):
   t.getNode(i).createNoiseModel()
 
-t.getNode(1).bootAtTime(100);
-t.getNode(2).bootAtTime(100);
-t.getNode(3).bootAtTime(100);
-#t.getNode(1).bootAtTime(100001);
-#t.getNode(2).bootAtTime(800008);
-#t.getNode(3).bootAtTime(1800009);
+for i in range(60):
+  t.runNextEvent()
 
-for i in range(2000):
-	#input("Press Enter to continue...")
-	v = t.runNextEvent()
-	if v != True and v != False:
-		print v
+msg = MoteMsg()
+msg.set_version(2)
+msg.set_size(2)
+pkt = t.newSerialPacket()
+pkt.setData(msg.data)
+pkt.setType(240)
+#pkt.setSource(0)
+pkt.setDestination(65535)
+
+print "Delivering " + str(msg) + " to 0 at " + str(t.time() + 10);
+pkt.deliver(0, t.time() + 10)
+
+for i in range(60):
+  throttle.checkThrottle()
+  t.runNextEvent()
+  sf.process()

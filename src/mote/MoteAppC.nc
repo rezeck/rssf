@@ -1,44 +1,32 @@
-/************************************************************
-Mote configuration file
-************************************************************/
-
-/************************************************************/	
-#include <Timer.h>
 #include "Mote.h"
-/************************************************************/
-
-/************************************************************/	
-configuration MoteAppC {
+configuration MoteAppC{
 }
-implementation {
+implementation{
 	components MainC;
-	components LedsC;
-	components MoteC as App;
-	components new TimerMilliC() as Timer0;
-
-	components ActiveMessageC;
-
-	components new AMSenderC(AM_QUESTION) as sendQuestion;
-	components new AMReceiverC(AM_QUESTION) as receiveQuestion;
-
-	components new AMSenderC(AM_ANSWER) as sendAnswer;
-	components new AMReceiverC(AM_ANSWER) as receiveAnswer;
-
-	App.Boot -> MainC;
-	App.Leds -> LedsC;
-	App.Timer0 -> Timer0;
-	App.AMControl -> ActiveMessageC;
-	App.QPacket -> sendQuestion;
-	App.APacket -> sendAnswer;
-	App.AMPacket -> sendQuestion;
-	// Active Message to send and receive questions
-	App.AMSendQuestion -> sendQuestion;
-	App.AMReceiveQuestion -> receiveQuestion;
-	// Active Message to send and receive answers
-	App.AMSendAnswer -> sendAnswer;
-	App.AMReceiveAnswer -> receiveAnswer;
 	
+	components MoteC as Mote;
+	components ActiveMessageC as MoteAM;
+	components ActiveMessageAddressC as MoteAMAddress;
+	components LedsC;
+	
+	components new TimerMilliC() as TimerSensor;
+	components new PhotoC();
+	components new TempC();
+	//components new DemoSensorC();
+	
+	// Mote wiring
+	
+	Mote.Boot -> MainC;
+
+	Mote.RadioControl -> MoteAM;
+	Mote.RadioSend -> MoteAM;
+	Mote.RadioReceive -> MoteAM.Receive;
+	Mote.RadioPacket -> MoteAM;
+	Mote.RadioAMPacket -> MoteAM;
+	Mote.Leds -> LedsC;
+	Mote.TimerSensor -> TimerSensor;
+	
+	//Mote.ReadPhoto -> DemoSensorC;
+	Mote.ReadPhoto ->PhotoC;
+	Mote.ReadTemp -> TempC;
 }
-/************************************************************
-END OF CODE
-************************************************************/
